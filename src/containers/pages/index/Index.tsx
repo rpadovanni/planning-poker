@@ -1,7 +1,10 @@
-import { ReactElement } from 'react';
+import { ReactElement, useState } from 'react';
+
+// COMPONENTS
+import Card from '@components/common/card/Card';
 
 // INDEX PAGE CONTAINER
-interface IPlayers {
+interface IPlayer {
 	card: number;
 	name: string;
 }
@@ -10,14 +13,28 @@ interface IPlayers {
 const IndexPageContainer = (): ReactElement => {
 	/* Vars */
 	let result: number = 0;
-
 	const cards = [1, 2, 3, 5, 8, 13];
-	const players: IPlayers[] = [
-		{ card: cards[4], name: 'Lais' },
-		{ card: cards[5], name: 'Matheus' },
-		{ card: cards[5], name: 'Rafael' },
-		{ card: cards[5], name: 'Theo' },
-	];
+
+	/* States */
+	const [players, setPlayers] = useState<IPlayer[]>([
+		{ card: cards[2], name: 'Lais' },
+		{ card: cards[2], name: 'Matheus' },
+		{ card: 0, name: 'Rafael' },
+		{ card: cards[2], name: 'Theo' },
+	]);
+
+	/* Handlers */
+	const cardClickHandler = (value: number): void => {
+		setPlayers(current =>
+			current.map(obj => {
+				if (obj.name === 'Rafael') {
+					return { ...obj, card: value };
+				}
+
+				return obj;
+			}),
+		);
+	};
 
 	/* Utils */
 	const getClosestCard = (result: number) => {
@@ -29,14 +46,15 @@ const IndexPageContainer = (): ReactElement => {
 	const getResult = (): number => {
 		let votesSum: number = 0;
 
-		players.forEach(player => (votesSum += player.card));
+		const filteredPlayers = players.filter(player => player.card !== 0);
+		filteredPlayers.forEach(player => (votesSum += player.card));
 
-		result = votesSum / players.length;
+		result = votesSum / filteredPlayers.length;
 		return result;
 	};
 
 	const cardsRenderer = (): ReactElement[] => {
-		return cards.map(card => <span style={{ padding: 5 }}>{card}</span>);
+		return cards.map(card => <Card clickHandler={cardClickHandler} value={card} key={card} />);
 	};
 
 	const playersRenderer = (): ReactElement[] => {
